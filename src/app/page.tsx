@@ -4,7 +4,7 @@ import Link from "next/link";
 import { logout } from "./auth/actions";
 
 export default async function Home() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
 
   return (
