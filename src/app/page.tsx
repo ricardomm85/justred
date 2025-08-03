@@ -19,7 +19,6 @@ export default async function Home() {
           ) : (
             <>
               <Link href="/login" className="text-white hover:underline">Login</Link>
-              <Link href="/register" className="text-white hover:underline ml-4">Register</Link>
             </>
           )}
         </div>
@@ -33,7 +32,7 @@ export default async function Home() {
               Go to Dashboard
             </Link>
           ) : (
-            <Link href="/register" className="mt-8 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg">
+            <Link href="/login" className="mt-8 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg">
               Get Started
             </Link>
           )}
