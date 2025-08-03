@@ -3,15 +3,18 @@
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
+import WaveSurfer from 'wavesurfer.js'
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 
 export default function DashboardPage() {
   const supabase = createClient()
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [isRecording, setIsRecording] = useState(false)
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([])
   const [audioFiles, setAudioFiles] = useState<string[]>([])
+  const waveformRef = useRef<HTMLDivElement | null>(null)
+  const wavesurfer = useRef<WaveSurfer | null>(null)
+  const record = useRef<any>(null)
 
   useEffect(() => {
     const getUser = async () => {
@@ -35,32 +38,38 @@ export default function DashboardPage() {
     router.push('/login')
   }
 
-  const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    const recorder = new MediaRecorder(stream)
-    setMediaRecorder(recorder)
-    recorder.start()
-    setIsRecording(true)
+  const startRecording = () => {
+    if (waveformRef.current) {
+      wavesurfer.current = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: '#4F4A85',
+        progressColor: '#383351',
+      })
 
-    recorder.ondataavailable = (event) => {
-      setAudioChunks((prev) => [...prev, event.data])
+      record.current = wavesurfer.current.registerPlugin(RecordPlugin.create())
+
+      record.current.on('record-end', (blob: Blob) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onloadend = () => {
+          const base64data = reader.result as string
+          const newAudioFiles = [...audioFiles, base64data]
+          setAudioFiles(newAudioFiles)
+          localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
+        }
+      })
+
+      record.current.startRecording()
+      setIsRecording(true)
     }
   }
 
   const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop()
+    if (record.current) {
+      record.current.stopRecording()
       setIsRecording(false)
-
-      const audioBlob = new Blob(audioChunks, { type: 'audio/wav' })
-      const reader = new FileReader()
-      reader.readAsDataURL(audioBlob)
-      reader.onloadend = () => {
-        const base64data = reader.result as string
-        const newAudioFiles = [...audioFiles, base64data]
-        setAudioFiles(newAudioFiles)
-        localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
-        setAudioChunks([])
+      if (wavesurfer.current) {
+        wavesurfer.current.destroy()
       }
     }
   }
@@ -80,6 +89,7 @@ export default function DashboardPage() {
         {user && <p className="text-center text-gray-600 dark:text-gray-300">Welcome, {user.email}</p>}
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Record Audio</h2>
+          <div ref={waveformRef} className="mt-4"></div>
           <div className="mt-4 flex items-center justify-center space-x-4">
             <button 
               onClick={isRecording ? stopRecording : startRecording}
