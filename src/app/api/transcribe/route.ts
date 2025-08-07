@@ -9,19 +9,18 @@ export async function POST(request: Request) {
       keyFilename: 'google-credentials.json',
     });
 
-    const config = {
-      encoding: 'WEBM_OPUS',
-      languageCode: 'es-ES',
-    };
-    const audio = {
-      content: audioData,
-    };
     const requestPayload = {
-      audio: audio,
-      config: config,
+      audio: {
+        content: audioData,
+      },
+      config: {
+        encoding: 'WEBM_OPUS' as const,
+        languageCode: 'es-ES',
+      },
     };
 
-    const [response] = await client.recognize(requestPayload);
+    const result = await client.recognize(requestPayload);
+    const response = result[0];
 
     return NextResponse.json(response);
   } catch (error) {
