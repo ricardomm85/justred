@@ -6,13 +6,19 @@ import { useEffect, useState, useRef } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 
+interface AudioFile {
+  data: string;
+  name: string;
+}
+
 export default function DashboardPage() {
   const supabase = createClient()
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [isRecording, setIsRecording] = useState(false)
-  const [audioFiles, setAudioFiles] = useState<string[]>([])
+  const [audioFiles, setAudioFiles] = useState<AudioFile[]>([])
   const [recordingTime, setRecordingTime] = useState(0)
+  const recordingTimeRef = useRef(0)
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const record = useRef<any>(null)
@@ -62,9 +68,18 @@ export default function DashboardPage() {
         reader.readAsDataURL(blob)
         reader.onloadend = () => {
           const base64data = reader.result as string
-          const newAudioFiles = [...audioFiles, base64data]
+          const now = new Date()
+          const date = now.toLocaleDateString(undefined, { year: '2-digit', month: '2-digit', day: '2-digit' })
+          const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+          const duration = formatTime(recordingTimeRef.current)
+          const name = `Recording ${date} ${time} (${duration})`
+
+          const newAudioFile = { data: base64data, name };
+          const newAudioFiles = [...audioFiles, newAudioFile]
           setAudioFiles(newAudioFiles)
           localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
+          recordingTimeRef.current = 0
+          setRecordingTime(0)
         }
       })
 
@@ -72,7 +87,8 @@ export default function DashboardPage() {
       setIsRecording(true)
 
       timerIntervalRef.current = setInterval(() => {
-        setRecordingTime(prevTime => prevTime + 1)
+        recordingTimeRef.current += 1
+        setRecordingTime(recordingTimeRef.current)
       }, 1000)
 
       stopTimeoutRef.current = setTimeout(() => {
@@ -94,7 +110,6 @@ export default function DashboardPage() {
       if (stopTimeoutRef.current) {
         clearTimeout(stopTimeoutRef.current)
       }
-      setRecordingTime(0)
     }
   }
 
@@ -138,8 +153,8 @@ export default function DashboardPage() {
           <div className="mt-4 space-y-2">
             {audioFiles.map((audioFile, index) => (
               <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
-                <p>Recording {index + 1}</p>
-                <audio src={audioFile} controls />
+                <p>{audioFile.name}</p>
+                <audio src={audioFile.data} controls />
                 <button 
                   onClick={() => removeAudio(index)}
                   className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
@@ -154,3 +169,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
