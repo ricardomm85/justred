@@ -12,9 +12,12 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [audioFiles, setAudioFiles] = useState<string[]>([])
+  const [recordingTime, setRecordingTime] = useState(0)
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const record = useRef<any>(null)
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const getUser = async () => {
@@ -36,6 +39,12 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
+  }
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = time % 60
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
   }
 
   const startRecording = () => {
@@ -61,6 +70,14 @@ export default function DashboardPage() {
 
       record.current.startRecording()
       setIsRecording(true)
+
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingTime(prevTime => prevTime + 1)
+      }, 1000)
+
+      stopTimeoutRef.current = setTimeout(() => {
+        stopRecording()
+      }, 180000) // 3 minutes
     }
   }
 
@@ -71,6 +88,13 @@ export default function DashboardPage() {
       if (wavesurfer.current) {
         wavesurfer.current.destroy()
       }
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current)
+      }
+      if (stopTimeoutRef.current) {
+        clearTimeout(stopTimeoutRef.current)
+      }
+      setRecordingTime(0)
     }
   }
 
@@ -90,6 +114,9 @@ export default function DashboardPage() {
         <div className="mt-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Record Audio</h2>
           <div ref={waveformRef} className="mt-4"></div>
+          <div className="mt-4 text-center text-gray-600 dark:text-gray-300">
+            <span>{formatTime(recordingTime)}</span> / <span>03:00</span>
+          </div>
           <div className="mt-4 flex items-center justify-center space-x-4">
             <button 
               onClick={isRecording ? stopRecording : startRecording}
