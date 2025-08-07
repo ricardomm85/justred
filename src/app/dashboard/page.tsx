@@ -75,7 +75,7 @@ export default function DashboardPage() {
           const name = `Recording ${date} ${time} (${duration})`
 
           const newAudioFile = { data: base64data, name };
-          const newAudioFiles = [...audioFiles, newAudioFile]
+          const newAudioFiles = [newAudioFile, ...audioFiles]
           setAudioFiles(newAudioFiles)
           localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
           recordingTimeRef.current = 0
