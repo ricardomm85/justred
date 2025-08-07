@@ -69,7 +69,7 @@ export default function DashboardPage() {
         reader.onloadend = () => {
           const base64data = reader.result as string
           const now = new Date()
-          const date = now.toLocaleDateString(undefined, { year: '2-digit', month: '2-digit', day: '2-digit' })
+          const date = new Intl.DateTimeFormat(undefined, { year: '2-digit', month: '2-digit', day: '2-digit' }).format(now)
           const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
           const duration = formatTime(recordingTimeRef.current)
           const name = `Recording ${date} ${time} (${duration})`
@@ -125,8 +125,8 @@ export default function DashboardPage() {
       <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-700">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <button 
-            onClick={handleLogout} 
+          <button
+            onClick={handleLogout}
             className="py-2 px-4 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
           >
             Logout
@@ -140,7 +140,7 @@ export default function DashboardPage() {
             <span>{formatTime(recordingTime)}</span> / <span>03:00</span>
           </div>
           <div className="mt-4 flex items-center justify-center space-x-4">
-            <button 
+            <button
               onClick={isRecording ? stopRecording : startRecording}
               className={`w-full py-3 px-4 font-bold text-white rounded-lg ${isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
             >
@@ -153,14 +153,20 @@ export default function DashboardPage() {
           <div className="mt-4 space-y-2">
             {audioFiles.map((audioFile, index) => (
               <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
-                <p>{audioFile.name}</p>
-                <audio src={audioFile.data} controls />
-                <button 
-                  onClick={() => removeAudio(index)}
-                  className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
-                >
-                  Remove
-                </button>
+                <div className="flex-grow">
+                  <p style={{ whiteSpace: 'pre-line' }}>{audioFile.name}</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <audio src={audioFile.data} controls />
+                </div>
+                <div className="flex-shrink-0 ml-2">
+                  <button
+                    onClick={() => removeAudio(index)}
+                    className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -169,4 +175,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
