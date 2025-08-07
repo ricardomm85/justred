@@ -98,6 +98,13 @@ export default function DashboardPage() {
     }
   }
 
+  const removeAudio = (index: number) => {
+    const newAudioFiles = [...audioFiles]
+    newAudioFiles.splice(index, 1)
+    setAudioFiles(newAudioFiles)
+    localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
       <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-700">
@@ -133,6 +140,12 @@ export default function DashboardPage() {
               <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
                 <p>Recording {index + 1}</p>
                 <audio src={audioFile} controls />
+                <button 
+                  onClick={() => removeAudio(index)}
+                  className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>
