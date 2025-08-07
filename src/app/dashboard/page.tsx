@@ -1,5 +1,6 @@
 'use client'
 
+import { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
@@ -15,14 +16,14 @@ interface AudioFile {
 export default function DashboardPage() {
   const supabase = createClient()
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([])
   const [recordingTime, setRecordingTime] = useState(0)
   const recordingTimeRef = useRef(0)
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const wavesurfer = useRef<WaveSurfer | null>(null)
-  const record = useRef<any>(null)
+  const record = useRef<RecordPlugin | null>(null)
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
