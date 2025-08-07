@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
   const [isRecording, setIsRecording] = useState(false)
   const [audioFiles, setAudioFiles] = useState<AudioFile[]>([])
+  const [transcribingIndex, setTranscribingIndex] = useState<number | null>(null)
   const [recordingTime, setRecordingTime] = useState(0)
   const recordingTimeRef = useRef(0)
   const waveformRef = useRef<HTMLDivElement | null>(null)
@@ -123,6 +124,7 @@ export default function DashboardPage() {
   }
 
   const transcribeAudio = async (index: number) => {
+    setTranscribingIndex(index);
     const audioFile = audioFiles[index];
     const response = await fetch('/api/transcribe', {
       method: 'POST',
@@ -142,6 +144,7 @@ export default function DashboardPage() {
     } else {
       console.error('Failed to transcribe audio');
     }
+    setTranscribingIndex(null);
   };
 
   return (
@@ -189,8 +192,9 @@ export default function DashboardPage() {
                       <button
                         onClick={() => transcribeAudio(index)}
                         className="py-1 px-3 font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                        disabled={transcribingIndex === index}
                       >
-                        Transcribe
+                        {transcribingIndex === index ? 'Transcribing...' : 'Transcribe'}
                       </button>
                     )}
                   </div>
