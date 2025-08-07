@@ -9,6 +9,7 @@ import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
 interface AudioFile {
   data: string;
   name: string;
+  transcript?: string;
 }
 
 export default function DashboardPage() {
@@ -120,6 +121,28 @@ export default function DashboardPage() {
     localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles))
   }
 
+  const transcribeAudio = async (index: number) => {
+    const audioFile = audioFiles[index];
+    const response = await fetch('/api/transcribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ audioData: audioFile.data.split(',')[1] }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const transcript = data.results?.[0]?.alternatives?.[0]?.transcript || 'No transcript available';
+      const newAudioFiles = [...audioFiles];
+      newAudioFiles[index].transcript = transcript;
+      setAudioFiles(newAudioFiles);
+      localStorage.setItem('audioFiles', JSON.stringify(newAudioFiles));
+    } else {
+      console.error('Failed to transcribe audio');
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
       <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-700">
@@ -152,21 +175,38 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recorded Audio</h2>
           <div className="mt-4 space-y-2">
             {audioFiles.map((audioFile, index) => (
-              <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
-                <div className="flex-grow">
-                  <p style={{ whiteSpace: 'pre-line' }}>{audioFile.name}</p>
+              <div key={index} className="bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex-grow">
+                    <p style={{ whiteSpace: 'pre-line' }}>{audioFile.name}</p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <audio src={audioFile.data} controls />
+                  </div>
+                  <div className="flex-shrink-0 ml-2">
+                    {!audioFile.transcript && (
+                      <button
+                        onClick={() => transcribeAudio(index)}
+                        className="py-1 px-3 font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                      >
+                        Transcribe
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 ml-2">
+                    <button
+                      onClick={() => removeAudio(index)}
+                      className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
-                <div className="flex-shrink-0">
-                  <audio src={audioFile.data} controls />
-                </div>
-                <div className="flex-shrink-0 ml-2">
-                  <button
-                    onClick={() => removeAudio(index)}
-                    className="py-1 px-3 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
-                </div>
+                {audioFile.transcript && (
+                  <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-500 rounded-lg">
+                    <p className="text-gray-800 dark:text-gray-200">{audioFile.transcript}</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
