@@ -25,8 +25,8 @@ export default async function Home() {
       </header>
       <main className="flex-1 bg-gray-100 dark:bg-gray-800">
         <section className="py-20 px-6 text-center">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white">Welcome to Audio Recorder</h1>
-          <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">Record, store, and manage your audio files with ease.</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">Welcome to Audio Recorder</h1>
+          <p className="mt-4 text-lg md:text-xl text-gray-600 dark:text-gray-300">Record, store, and manage your audio files with ease.</p>
           {data.user ? (
             <Link href="/dashboard" className="mt-8 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg">
               Go to Dashboard
@@ -39,7 +39,7 @@ export default async function Home() {
         </section>
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white">Features</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white">Features</h2>
             <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-white dark:bg-gray-700 rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Easy to Use</h3>

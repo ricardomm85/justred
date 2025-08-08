@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js'
+import AudioPlayer from './AudioPlayer';
 
 interface AudioFile {
   data: string;
@@ -151,7 +152,7 @@ export default function DashboardPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-800">
       <div className="w-full max-w-2xl p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-700">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <button
             onClick={handleLogout}
             className="py-2 px-4 font-bold text-white bg-red-500 rounded-lg hover:bg-red-600"
@@ -161,7 +162,7 @@ export default function DashboardPage() {
         </div>
         {user && <p className="text-center text-gray-600 dark:text-gray-300">Welcome, {user.email}</p>}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Record Audio</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Record Audio</h2>
           <div ref={waveformRef} className="mt-4"></div>
           <div className="mt-4 text-center text-gray-600 dark:text-gray-300">
             <span>{formatTime(recordingTime)}</span> / <span>03:00</span>
@@ -176,7 +177,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="mt-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recorded Audio</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Recorded Audio</h2>
           <div className="mt-4 space-y-2">
             {audioFiles.map((audioFile, index) => (
               <div key={index} className="bg-gray-200 dark:bg-gray-600 p-2 rounded-lg">
@@ -185,7 +186,7 @@ export default function DashboardPage() {
                     <p style={{ whiteSpace: 'pre-line' }}>{audioFile.name}</p>
                   </div>
                   <div className="flex-shrink-0">
-                    <audio src={audioFile.data} controls />
+                    <AudioPlayer src={audioFile.data} />
                   </div>
                   <div className="flex-shrink-0 ml-2">
                     {!audioFile.transcript && (
