@@ -6,7 +6,8 @@ export async function POST(request: Request) {
 
   try {
     const client = new SpeechClient({
-      keyFilename: 'google-credentials.json',
+      credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}'),
+      projectId: process.env.GOOGLE_PROJECT_ID,
     });
 
     const requestPayload = {
